@@ -6,6 +6,7 @@ import com.hps.integrator.entities.HpsTrackData;
 import com.hps.integrator.entities.HpsTransaction;
 import com.hps.integrator.entities.batch.HpsBatch;
 import com.hps.integrator.entities.credit.*;
+import com.hps.integrator.entities.HpsEncryptionData;
 import com.hps.integrator.entities.debit.HpsDebitAuthorization;
 import com.hps.integrator.entities.ebt.HpsEbtAuthorization;
 import com.hps.integrator.entities.gift.HpsGiftCard;
@@ -23,6 +24,8 @@ import com.hps.integrator.services.fluent.HpsFluentCreditService;
 import com.hps.integrator.services.fluent.HpsFluentDebitService;
 import com.hps.integrator.services.fluent.HpsFluentEbtService;
 import com.hps.integrator.services.fluent.HpsFluentGiftService;
+import com.hps.integrator.tests.testdata.TestCreditCards;
+
 //import javafx.util.converter.BigDecimalStringConverter;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -72,6 +75,8 @@ public class Retail {
         giftService = new HpsFluentGiftService(config, true);
     }
 
+    
+       
     @Test
     public void test_000_CloseBatch() {
         try{
@@ -92,6 +97,23 @@ public class Retail {
         CARD VERIFY
         ACCOUNT VERIFICATION
      */
+    
+    @Test
+    public void test_000_CardVerifyVisa_EncryptedCardData() throws HpsException {
+    	
+        HpsTrackData trackData = new HpsTrackData();
+        trackData = TestCreditCards.validVisaTrackE3V1();
+        trackData.setTrackDataMethod(HpsTrackDataMethod.Swipe);
+
+        
+        HpsAccountVerify response = creditService.verify()
+                .withTrackData(trackData)
+                .withRequestMultiUseToken(useTokens)
+                .execute();
+        assertNotNull(response);
+        assertEquals("85", response.getResponseCode());
+    }   
+    
     @Test
     public void test_001_CardVerifyVisa() throws HpsException {
         HpsTrackData trackData = new HpsTrackData();
